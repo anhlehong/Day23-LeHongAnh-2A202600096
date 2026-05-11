@@ -28,19 +28,28 @@ def classify_node(state: AgentState) -> dict:
     TODO(student): replace keyword heuristics with a clear routing policy.
     Required routes: simple, tool, missing_info, risky, error.
     """
+    import re
+
     query = state.get("query", "").lower()
     words = query.split()
-    clean_words = [w.strip("?!.,;:") for w in words]
+    clean_words = [re.sub(r"[^a-z0-9]", "", w) for w in words]
+
+    risky_keywords = {"refund", "delete", "send", "cancel", "remove", "revoke"}
+    tool_keywords = {"status", "order", "lookup", "check", "track", "find", "search"}
+    error_keywords = {"timeout", "fail", "failure", "error", "crash", "unavailable"}
+
     route = Route.SIMPLE
     risk_level = "low"
-    if "refund" in query or "delete" in query or "send" in query:
+
+    # Priority: risky > tool > missing_info > error > simple
+    if any(kw in clean_words for kw in risky_keywords):
         route = Route.RISKY
         risk_level = "high"
-    elif "status" in query or "order" in query or "lookup" in query:
+    elif any(kw in clean_words for kw in tool_keywords):
         route = Route.TOOL
-    elif len(clean_words) < 5 and "it" in clean_words:
+    elif len(clean_words) < 5 and any(p in clean_words for p in ("it", "this", "that")):
         route = Route.MISSING_INFO
-    elif "timeout" in query or "fail" in query:
+    elif any(kw in clean_words for kw in error_keywords):
         route = Route.ERROR
     return {
         "route": route.value,

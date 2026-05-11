@@ -5,3 +5,10 @@
 {"id":"S05_error","query":"Timeout failure while processing request","expected_route":"error","requires_approval":false,"should_retry":true,"tags":["retry"]}
 {"id":"S06_delete","query":"Delete customer account after support verification","expected_route":"risky","requires_approval":true,"should_retry":false,"tags":["hitl","destructive"]}
 {"id":"S07_dead_letter","query":"System failure cannot recover after multiple attempts","expected_route":"error","requires_approval":false,"should_retry":true,"max_attempts":1,"tags":["dead_letter","retry"]}
+{"id":"S08_cancel","query":"Cancel my subscription immediately","expected_route":"risky","requires_approval":true,"should_retry":false,"tags":["risky","custom"]}
+{"id":"S09_track","query":"Track my package shipment please","expected_route":"tool","requires_approval":false,"should_retry":false,"tags":["tool","custom"]}
+{"id":"S10_vague","query":"Fix this now","expected_route":"missing_info","requires_approval":false,"should_retry":false,"tags":["clarification","custom"]}
+{"id":"S11_crash","query":"Server crash during database migration","expected_route":"error","requires_approval":false,"should_retry":true,"tags":["error","custom"]}
+{"id":"S12_remove","query":"Remove my payment method from the account","expected_route":"risky","requires_approval":true,"should_retry":false,"tags":["risky","destructive","custom"]}
+{"id":"S13_search","query":"Search for recent transactions on my account","expected_route":"tool","requires_approval":false,"should_retry":false,"tags":["tool","custom"]}
+{"id":"S14_greeting","query":"Hello I need help with my account settings","expected_route":"simple","requires_approval":false,"should_retry":false,"tags":["simple","custom"]}
