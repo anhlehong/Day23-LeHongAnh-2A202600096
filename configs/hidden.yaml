@@ -1,0 +1,2 @@
+scenarios_path: data/scenarios_hidden.jsonl
+checkpointer: memory

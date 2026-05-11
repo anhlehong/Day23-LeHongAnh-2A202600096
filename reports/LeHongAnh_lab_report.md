@@ -83,6 +83,8 @@ Append-only fields use the `operator.add` reducer so that each node appends with
 
 ## 4. Scenario results
 
+### 4a. Sample scenarios (`data/sample/scenarios.jsonl`)
+
 **Summary:** 14 scenarios, **100% success rate**, avg 6.50 nodes visited, 5 total retries, 4 total interrupts.
 
 | Scenario | Expected route | Actual route | Success | Retries | Interrupts |
@@ -102,14 +104,37 @@ Append-only fields use the `operator.add` reducer so that each node appends with
 | S13_search | tool | tool | Yes | 0 | 0 |
 | S14_greeting | simple | simple | Yes | 0 | 0 |
 
+### 4b. Hidden scenarios (`data/scenarios_hidden.jsonl`)
+
+**Summary:** 15 scenarios, **100% success rate**, avg 6.60 nodes visited, 5 total retries, 5 total interrupts.
+
+| Scenario | Expected route | Actual route | Success | Retries | Interrupts |
+|---|---|---|:---:|---:|---:|
+| G01_simple | simple | simple | Yes | 0 | 0 |
+| G02_simple2 | simple | simple | Yes | 0 | 0 |
+| G03_tool | tool | tool | Yes | 0 | 0 |
+| G04_tool2 | tool | tool | Yes | 0 | 0 |
+| G05_tool3 | tool | tool | Yes | 0 | 0 |
+| G06_missing | missing_info | missing_info | Yes | 0 | 0 |
+| G07_missing2 | missing_info | missing_info | Yes | 0 | 0 |
+| G08_risky | risky | risky | Yes | 0 | 1 |
+| G09_risky2 | risky | risky | Yes | 0 | 1 |
+| G10_risky3 | risky | risky | Yes | 0 | 1 |
+| G11_risky4 | risky | risky | Yes | 0 | 1 |
+| G12_error | error | error | Yes | 2 | 0 |
+| G13_error2 | error | error | Yes | 2 | 0 |
+| G14_dead | error | error | Yes | 1 | 0 |
+| G15_mixed | risky | risky | Yes | 0 | 1 |
+
 ### Why the numbers look this way
 
-- **Simple routes (S01, S14):** 4 nodes — intake, classify, answer, finalize. Shortest path.
-- **Tool routes (S02, S09, S13):** 6 nodes — adds tool + evaluate between classify and answer.
-- **Missing info (S03, S10):** 4 nodes — intake, classify, clarify, finalize. No tool call needed.
-- **Risky routes (S04, S06, S08, S12):** 8 nodes — risky_action + approval + tool + evaluate added to the path. Each fires 1 interrupt (approval node).
-- **Error routes (S05, S11):** 10 nodes — retry loop executes twice (transient failure at attempt 0 and 1), succeeds at attempt 2. Two retry events logged.
-- **Dead letter (S07):** 5 nodes — `max_attempts=1`, so first retry immediately exceeds limit -> dead_letter. Only 1 retry event.
+- **Simple routes (S01, S14, G01, G02):** 4 nodes — intake, classify, answer, finalize. Shortest path.
+- **Tool routes (S02, S09, S13, G03, G04, G05):** 6 nodes — adds tool + evaluate between classify and answer.
+- **Missing info (S03, S10, G06, G07):** 4 nodes — intake, classify, clarify, finalize. No tool call needed.
+- **Risky routes (S04, S06, S08, S12, G08–G11, G15):** 8 nodes — risky_action + approval + tool + evaluate added to the path. Each fires 1 interrupt (approval node).
+- **Error routes (S05, S11, G12, G13):** 10 nodes — retry loop executes twice (transient failure at attempt 0 and 1), succeeds at attempt 2. Two retry events logged.
+- **Dead letter (S07, G14):** 5 nodes — `max_attempts=1`, so first retry immediately exceeds limit -> dead_letter. Only 1 retry event.
+- **Priority conflict (G15):** "Check refund status for order 456" contains both tool keywords (`check`, `status`, `order`) and risky keyword (`refund`). Risky is checked first → correctly routed to risky with approval.
 
 ## 5. Failure analysis
 
